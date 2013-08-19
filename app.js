@@ -53,7 +53,8 @@
 	 * Config
 	 */
 	Lazy.prototype.config = {
-		el: '.js-lazy'
+		el: '.js-lazy',
+		threshold: 0
 	};
 
 
@@ -104,7 +105,7 @@
 			top = $this.offset().top,
 			scrollTop = $(window).scrollTop();
 
-			if(scrollTop + _this.state.windowHeight >= top) {
+			if(scrollTop + _this.state.windowHeight >= top - _this.config.threshold) {
 				visible.push($(this));
 			}
 
