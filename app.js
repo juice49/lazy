@@ -54,7 +54,8 @@
 	 */
 	Lazy.prototype.config = {
 		el: '.js-lazy',
-		threshold: 0
+		threshold: 0,
+		url: '/'
 	};
 
 
@@ -140,7 +141,7 @@
 
 		// Single element passed
 		return (function($el) {
-			$el.load('/fragments/' + $el.data('src'), function() {
+			$el.load(_this.config.url + $el.data('src'), function() {
 				$el.addClass('loaded');
 			});
 			$el.data('loaded', true);
