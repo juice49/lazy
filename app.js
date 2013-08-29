@@ -44,6 +44,15 @@
 			_this.load(_this.visible());
 		});
 
+		this.emit('allLoad');
+
+		return {
+			on: function(event, callback) {
+				_this.on(event, callback);
+				return this;
+			}
+		};
+
 	}
 
 
@@ -66,6 +75,40 @@
 	 */
 	Lazy.prototype.state = {
 		windowHeight: 0
+	};
+
+
+
+
+	/**
+	 * Events
+	 */
+	Lazy.prototype.events = {
+		allLoad: []
+	};
+
+
+
+
+	/**
+	 * On
+	 */
+	Lazy.prototype.on = function(event, callback) {
+		if(event in this.events && typeof callback === 'function') {
+			this.events[event].push(callback);
+		}
+	};
+
+
+
+
+	/**
+	 * Emit
+	 */
+	Lazy.prototype.emit = function(event, data) {
+		for(var i = 0; i < this.events[event].length; i ++) {
+			this.events[event][i].call(this, data);
+		}
 	};
 
 
