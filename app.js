@@ -186,7 +186,7 @@
 				$el.addClass('loaded');
 			});
 			$el.data('loaded', true);
-			this.emit('allLoad');
+			_this.emit('allLoad');
 		})($el);
 
 	}
