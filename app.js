@@ -95,7 +95,6 @@
 		if(event in this.events && typeof callback === 'function') {
 			this.events[event].push(callback);
 		}
-		console.log(this.events);
 	};
 
 
@@ -187,9 +186,8 @@
 				$el.addClass('loaded');
 			});
 			$el.data('loaded', true);
+			this.emit('allLoad');
 		})($el);
-
-		this.emit('allLoad');
 
 	}
 
