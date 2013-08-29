@@ -95,6 +95,7 @@
 		if(event in this.events && typeof callback === 'function') {
 			this.events[event].push(callback);
 		}
+		console.log(this.events);
 	};
 
 
