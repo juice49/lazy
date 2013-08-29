@@ -44,8 +44,6 @@
 			_this.load(_this.visible());
 		});
 
-		this.emit('allLoad');
-
 		return {
 			on: function(event, callback) {
 				_this.on(event, callback);
@@ -189,6 +187,8 @@
 			});
 			$el.data('loaded', true);
 		})($el);
+
+		this.emit('allLoad');
 
 	}
 
