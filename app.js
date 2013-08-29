@@ -33,8 +33,11 @@
 	function Lazy(config) {
 
 		var _this = this;
+
 		$.extend(_this.config, config);
+
 		this.$el = $(_this.config.el);
+		this.state.elLength = this.$el.length;
 
 		$(window).on('load resize', function() {
 			_this.setWindowHeight();
@@ -72,7 +75,14 @@
 	 * State
 	 */
 	Lazy.prototype.state = {
-		windowHeight: 0
+		// Window Height
+		windowHeight: 0,
+
+		// El Length: Number of lazy elements
+		elLength: 0,
+
+		// Load Count: Number of lazy elements that have loaded
+		loadCount: 0
 	};
 
 
@@ -82,7 +92,13 @@
 	 * Events
 	 */
 	Lazy.prototype.events = {
+
+		// Load: A single fragment loaded
+		load: [],
+
+		// AllLoad: All of the fragments loaded
 		allLoad: []
+
 	};
 
 
@@ -182,11 +198,24 @@
 
 		// Single element passed
 		return (function($el) {
+
 			$el.load(_this.config.url + $el.data('src'), function() {
 				$el.addClass('loaded');
 			});
+			
+			// Mark the fragment as loaded
 			$el.data('loaded', true);
-			_this.emit('allLoad');
+
+			// Incremement the load counter (used to work out when every fragment has loaded)
+			_this.state.loadCount ++;
+
+			// Emit the single fragment load event
+			_this.emit('load');
+
+			if(_this.state.loadCount === _this.state.elLength) {
+				_this.emit('allLoad');
+			}
+
 		})($el);
 
 	}
