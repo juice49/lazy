@@ -75,6 +75,7 @@
 	 * State
 	 */
 	Lazy.prototype.state = {
+		
 		// Window Height
 		windowHeight: 0,
 
