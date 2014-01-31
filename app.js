@@ -8,7 +8,7 @@
 
 
 
-	window.lazy = function(config) {
+	window.Lazy = function(config) {
 		return factory(config);
 	};
 
@@ -36,22 +36,35 @@
 
 		$.extend(_this.config, config);
 
-		this.$el = $(_this.config.el);
-		this.state.elLength = this.$el.length;
-
-		$(window).on('load resize', function() {
-			_this.setWindowHeight();
-		});
-
-		$(window).on('load scroll resize', function() {
-			_this.load(_this.visible());
-		});
-
 		return {
+
+			go: function() {
+
+				_this.$el = $(_this.config.el);
+				_this.state.elLength = _this.$el.length;
+
+				$(window).on('load resize', function() {
+					_this.setWindowHeight();
+				});
+
+				$(window).on('load scroll resize', function() {
+					_this.load(_this.visible());
+				});
+
+				return this;
+
+			},
+
 			on: function(event, callback) {
 				_this.on(event, callback);
 				return this;
+			},
+
+			defineLoader: function(name, fn) {
+				_this.defineLoader.call(_this, name, fn);
+				return this;
 			}
+
 		};
 
 	}
@@ -65,7 +78,7 @@
 	Lazy.prototype.config = {
 		el: '.js-lazy',
 		threshold: 0,
-		url: '/'
+		url: ''
 	};
 
 
@@ -75,7 +88,7 @@
 	 * State
 	 */
 	Lazy.prototype.state = {
-		
+
 		// Window Height
 		windowHeight: 0,
 
@@ -84,6 +97,7 @@
 
 		// Load Count: Number of lazy elements that have loaded
 		loadCount: 0
+
 	};
 
 
@@ -151,7 +165,7 @@
 			visible = [];
 
 		this.$el.each(function() {
-			
+
 			var
 				$this = $(this),
 				top,
@@ -189,7 +203,7 @@
 		var _this = this;
 
 		// Array passed
-		if(Object.prototype.toString.call($el) === '[object Array]') {
+		if($el instanceof Array) {
 			return (function($el) {
 				for(var i = 0; i < $el.length; i ++) {
 					_this.load($el[i]);
@@ -200,26 +214,66 @@
 		// Single element passed
 		return (function($el) {
 
-			$el.load(_this.config.url + $el.data('src'), function() {
-				$el.addClass('loaded');
-			});
-			
-			// Mark the fragment as loaded
-			$el.data('loaded', true);
+			var loaderName = $el.data('loader');			
+			var loader = _this.loaders[loaderName];
 
-			// Incremement the load counter (used to work out when every fragment has loaded)
-			_this.state.loadCount ++;
+			// Check if the specified loader exists
+			if(typeof loader !== 'function') {
+				loaded();
+				return console.error('`' + loaderName + '` loader not installed');
+			}
 
-			// Emit the single fragment load event
-			_this.emit('load');
+			loader.call(_this, $el, _this.config.url + $el.data('src'), loaded);
 
-			if(_this.state.loadCount === _this.state.elLength) {
-				_this.emit('allLoad');
+			// After content load
+			function loaded() {
+
+				$el.data('loaded', true).addClass('loaded');
+				_this.state.loadCount ++;
+				_this.emit('load');
+
+				if(_this.state.loadCount === _this.state.elLength) {
+					_this.emit('allLoad');
+				}
+
 			}
 
 		})($el);
 
 	}
+
+
+
+
+	/**
+	 * Loaders
+	 *
+	 * Functions that provide loaders for different types of lazy loading.
+	 */
+	Lazy.prototype.loaders = {
+
+		background: function($el, src, callback) {
+
+			$el.css({ backgroundImage: 'url(' + src + ')' });
+
+			$('<img>').attr('src', src).on('load', function() {
+				$(this).remove();
+				if(callback) return callback();
+			});
+
+		}
+
+	};
+
+
+
+
+	/**
+	 * Define Loader
+	 */
+	Lazy.prototype.defineLoader = function(name, fn) {
+		this.loaders[name] = fn;
+	};
 
 
 
